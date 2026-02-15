@@ -1,0 +1,22 @@
+#!/bin/bash
+
+CG_NAME="my_manual_container"
+CG_PATH="/sys/fs/cgroup/$CG_NAME"
+ROOTFS="my_rootfs"
+
+
+LIMIT_BYTES=$((20 * 1024 * 1024))
+
+echo "--- Настройка лимитов ($LIMIT_BYTES байт) ---"
+sudo mkdir -p "$CG_PATH"
+
+echo "$LIMIT_BYTES" | sudo tee "$CG_PATH/memory.max" > /dev/null
+
+echo "--- Запуск контейнера ---"
+
+sudo unshare --uts --pid --fork --mount-proc=$PWD/$ROOTFS/proc \
+    bash -c "
+        echo \$$ > $CG_PATH/cgroup.procs
+        echo 'Добро пожаловать в ручной Docker!'
+        exec chroot $ROOTFS /bin/sh
+        "
