@@ -1,0 +1,33 @@
+#!/bin/bash
+ROOTFS="my_rootfs"
+
+# 2. Создаем структуру каталогов (как в настоящем Linux)
+echo "--- Создаем структуру папок ---"
+mkdir -p $ROOTFS/{bin,lib,lib64,proc,sys,etc,usr/bin,usr/lib}
+
+copy_bin() {
+    local bin_path=$(which $1)
+    if [ -z "$bin_path" ]; then
+        echo "Ошибка: $1 не найден в системе!"
+        return
+    fi
+    
+    echo "Копируем $1 и его библиотеки..."
+    cp "$bin_path" "$ROOTFS$bin_path"
+    
+  
+    for lib in $(ldd "$bin_path" | grep -o '/lib[^ ]*'); do
+        mkdir -p "$ROOTFS$(dirname "$lib")"
+        cp -n "$lib" "$ROOTFS$lib" # -n чтобы не копировать дважды
+    done
+}
+
+
+copy_bin ls
+copy_bin sh
+copy_bin hostname
+copy_bin mount
+copy_bin mkdir
+
+echo "--- Образ готов в папке $ROOTFS ---"
+du -sh $ROOTFS
