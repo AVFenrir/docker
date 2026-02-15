@@ -1,0 +1,8 @@
+FROM python:3.9-slim AS base_layer
+
+RUN apt-get update && apt-get install -y curl
+
+FROM base_layer AS final_app
+WORKDIR /app
+COPY hello.py .
+CMD ["python", "hello.py"]
