@@ -1,0 +1,11 @@
+FROM python:3.9-slim
+
+
+ARG CACHEBUST=1
+
+RUN apt-get update && apt-get install -y curl
+
+WORKDIR /app
+COPY hello.py .
+
+CMD ["python", "hello.py"]
