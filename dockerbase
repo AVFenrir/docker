@@ -1,0 +1,8 @@
+# Взяли основу
+FROM python:3.9-slim
+
+
+ONBUILD COPY hello.py /app/hello.py
+
+
+ONBUILD CMD ["python", "/app/hello.py"]
