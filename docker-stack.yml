@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # 1. Traefik — наш умный прокси
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"            
+      - "--providers.docker=true"         
+      - "--providers.docker.swarmMode=true" 
+      - "--entrypoints.web.address=:80"   
+    ports:
+      - "80:80"      
+      - "8080:8080"   
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # 
+
+
+  my-website:
+    image: nginx:alpine
+    deploy:
+      replicas: 5
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.my-site.rule=Host(`hello.localhost`)" 
+        - "traefik.http.services.my-site.loadbalancer.server.port=80"
